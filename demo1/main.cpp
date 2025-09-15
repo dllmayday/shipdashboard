@@ -7,6 +7,7 @@
 #include "compasswidget.h"
 #include "adiwidget.h"
 #include "radarwidget.h"
+#include "depthgauge.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
@@ -27,12 +28,17 @@ int main(int argc, char *argv[]) {
     ADIWidget *adi = new ADIWidget;
     RadarWidget *radar = new RadarWidget;
 
+    DepthGauge *gauge = new DepthGauge();
+    gauge->setMaxDepth(200);
+    gauge->setDepth(150);
+
     QHBoxLayout *layout = new QHBoxLayout(&w);
     layout->addWidget(speed);
     layout->addWidget(depth);
     layout->addWidget(compass);
     layout->addWidget(adi);
     layout->addWidget(radar);
+    layout->addWidget(gauge);
 
     // 模拟数据
     QTimer *timer = new QTimer(&w);

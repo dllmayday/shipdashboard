@@ -18,6 +18,7 @@ SOURCES += \
     adiwidget.cpp \
     compasswidget.cpp \
     controlpanel.cpp \
+    depthgauge.cpp \
     gaugewidget.cpp \
     radarwidget.cpp
 
@@ -25,6 +26,7 @@ HEADERS += \
     adiwidget.h \
     compasswidget.h \
     controlpanel.h \
+    depthgauge.h \
     gaugewidget.h \
     radarwidget.h
 
