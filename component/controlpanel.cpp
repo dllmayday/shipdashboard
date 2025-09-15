@@ -4,58 +4,97 @@
 #include <QtMath>
 
 ControlPanel::ControlPanel(QWidget *parent)
-    : QWidget(parent), m_drag(None), m_heading(0), m_speed(0) {
-    setMinimumSize(400,200);
+    : QWidget(parent), m_drag(None), m_heading(0), m_speed(50) {
+    setMinimumSize(700,300);
+    // 加载舵盘图片（建议透明背景的 PNG）
+    m_wheel = QPixmap(":/images/steering_wheel.png"); // 放到 qrc 资源里
 }
 
 QRect ControlPanel::steeringRect() const {
-    return QRect(20,20,160,160); // 左边舵盘区域
+
+    QRect fullRect = rect();
+    QRect leftHalf = fullRect.adjusted(0, 0, -fullRect.width()/2, 0); // 左半区
+
+    QSize wheelSize = m_wheel.size();
+    if (wheelSize.isEmpty())
+        return leftHalf; // 防止图片未加载
+
+    // 计算缩放比例
+    double scale = qMin(leftHalf.width() / (double)wheelSize.width(),
+                        leftHalf.height() / (double)wheelSize.height());
+
+    // 返回缩放后的舵盘实际矩形
+    QPoint center = leftHalf.center();
+    int w = wheelSize.width() * scale;
+    int h = wheelSize.height() * scale;
+    return QRect(center.x() - w/2, center.y() - h/2, w, h);
+
 }
 
 QRect ControlPanel::throttleRect() const {
-    return QRect(width()-80,20,40,160); // 右边油门杆区域
+    // 油门杆固定尺寸 60x250，右半区居中
+    int throttleWidth = 60;
+    int throttleHeight = 250;
+    QRect fullRect = rect();
+
+    int x = fullRect.width()/2 + (fullRect.width()/2 - throttleWidth)/2; // 右半区水平居中
+    int y = (fullRect.height() - throttleHeight)/2;                       // 垂直居中
+
+    return QRect(x, y, throttleWidth, throttleHeight);
 }
 
 void ControlPanel::paintEvent(QPaintEvent *) {
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
+    p.setRenderHint(QPainter::SmoothPixmapTransform);
 
     // 背景
     p.fillRect(rect(), QColor(20,30,40));
 
-    // 舵盘（Steering Wheel）
-    QRect srect = steeringRect();
+    // 舵盘（使用PNG）
+    QRect fullRect = rect(); // 假设你在 paintEvent 中使用
+
+    // 左半边绘制舵盘
+    QRect srect = fullRect.adjusted(0, 0, -fullRect.width()/2, 0); // 左半区
+
+    // 舵盘文字（上方）
+    p.setPen(Qt::green);
+    p.drawText(srect.adjusted(0, 0, 0, -srect.height()/2), Qt::AlignHCenter | Qt::AlignTop,
+               QString("Heading: %1°").arg(m_heading,0,'f',1));
+
     p.save();
-    p.translate(srect.center());
-    p.scale(srect.width()/2.0/100.0, srect.height()/2.0/100.0);
-
-    // 圆盘
-    QRadialGradient grad(0,0,100);
-    grad.setColorAt(0,QColor(80,80,80));
-    grad.setColorAt(1,QColor(30,30,30));
-    p.setBrush(grad);
-    p.setPen(QPen(Qt::white,2));
-    p.drawEllipse(QPoint(0,0),100,100);
-
-    // 舵盘把手
-    p.rotate(m_heading);
-    p.setPen(QPen(Qt::yellow,6));
-    p.drawLine(0,-80,0,80);
-    p.drawLine(-80,0,80,0);
+    p.translate(srect.center());    // 移动到舵盘中心
+    p.rotate(m_heading);            // 按角度旋转
+    QSize wheelSize = m_wheel.size();
+    double scale = qMin(srect.width()/(double)wheelSize.width(),
+                        srect.height()/(double)wheelSize.height());
+    p.scale(scale, scale);
+    p.drawPixmap(-wheelSize.width()/2, -wheelSize.height()/2, m_wheel);
     p.restore();
 
-    // 舵盘文字
-    p.setPen(Qt::white);
-    p.drawText(srect.adjusted(0,170,0,0), Qt::AlignHCenter, QString("Heading: %1°").arg(m_heading,0,'f',1));
+    // 右半边绘制油门杆（固定尺寸 60x250）
+    int throttleWidth = 60;
+    int throttleHeight = 250;
+    QRect trect(
+        fullRect.width()/2 + (fullRect.width()/2 - throttleWidth)/2,  // 右半区水平居中
+        (fullRect.height() - throttleHeight)/2,                       // 垂直居中
+        throttleWidth,
+        throttleHeight
+    );
 
-    // 油门杆（Throttle）
-    QRect trect = throttleRect();
+    // 油门文字（上方）
+    p.setPen(Qt::green);
+    p.drawText(fullRect.adjusted(fullRect.width()/2, 0,0,  -fullRect.height()/2), Qt::AlignHCenter | Qt::AlignTop,
+               QString("Speed: %1%").arg(m_speed,0,'f',0));
+
+    // 绘制油门杆背景
     p.setBrush(QColor(50,50,50));
     p.setPen(QPen(Qt::white,2));
     p.drawRoundedRect(trect,5,5);
 
+    // 绘制油门旋钮
     int y = trect.bottom() - (m_speed/100.0)*trect.height();
-    QRect knob(trect.left()-5, y-10, trect.width()+10,20);
+    QRect knob(trect.left()-5, y-10, trect.width()+10, 20);
 
     QLinearGradient lg(knob.topLeft(), knob.bottomRight());
     lg.setColorAt(0,QColor(200,200,200));
@@ -64,9 +103,6 @@ void ControlPanel::paintEvent(QPaintEvent *) {
     p.setPen(QPen(Qt::black,1));
     p.drawRoundedRect(knob,5,5);
 
-    // 航速文字
-    p.setPen(Qt::white);
-    p.drawText(trect.adjusted(-60,170,60,0), Qt::AlignHCenter, QString("Speed: %1%").arg(m_speed,0,'f',0));
 }
 
 void ControlPanel::mousePressEvent(QMouseEvent *ev) {
