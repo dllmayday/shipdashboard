@@ -1,11 +1,13 @@
 #include <QApplication>
 #include <QVBoxLayout>
+#include <QDebug>
 #include "controlpanel.h"
 #include "radarwidget.h"
 #include "gaugewidget.h"
 #include "compasswidget.h"
 #include "adiwidget.h"
 #include "radarwidget.h"
+#include "levergate.h"
 
 
 int main(int argc, char *argv[]) {
@@ -13,6 +15,7 @@ int main(int argc, char *argv[]) {
     QWidget w;
     w.setWindowTitle("驾驶台仿真");
     w.resize(1000, 600);
+    w.setStyleSheet("QWidget { background-image: url(:/images/background.png); }");
 
     QWidget*  w_dashboard = new QWidget();
     GaugeWidget *speed = new GaugeWidget;
@@ -37,8 +40,9 @@ int main(int argc, char *argv[]) {
 
     QVBoxLayout *layout = new QVBoxLayout(&w);
 
-    ControlPanel *ctrl = new ControlPanel;
     layout->addWidget(w_dashboard,1);
+
+    ControlPanel *ctrl = new ControlPanel;
     layout->addWidget(ctrl,0);
 
     w.show();

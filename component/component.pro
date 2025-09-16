@@ -17,18 +17,33 @@ TARGET = shipdashboard
 SOURCES += \
     adiwidget.cpp \
     compasswidget.cpp \
+    controlbutton.cpp \
+    controlbuttonpanel.cpp \
     controlpanel.cpp \
     depthgauge.cpp \
     gaugewidget.cpp \
-    radarwidget.cpp
+    levergate.cpp \
+    radarwidget.cpp \
+    steeringwidget.cpp \
+    throttlewidget.cpp
+    controlbutton.cpp
+    controlbuttonpanel.cpp
 
 HEADERS += \
     adiwidget.h \
     compasswidget.h \
+    controlbutton.h \
+    controlbuttonpanel.h \
     controlpanel.h \
     depthgauge.h \
     gaugewidget.h \
-    radarwidget.h
+    levergate.h \
+    radarwidget.h \
+    steeringwidget.h \
+    throttlewidget.h
+    controlbutton.h
+    controlbuttonpanel.h
+
 
 FORMS += \
 

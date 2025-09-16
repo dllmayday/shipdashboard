@@ -9,6 +9,8 @@
 #include "radarwidget.h"
 #include "depthgauge.h"
 
+#include "controlbuttonpanel.h"
+
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
@@ -39,6 +41,10 @@ int main(int argc, char *argv[]) {
     layout->addWidget(adi);
     layout->addWidget(radar);
     layout->addWidget(gauge);
+
+    // Add control button panel
+    ControlButtonPanel *controlPanel = new ControlButtonPanel;
+    layout->addWidget(controlPanel);
 
     // 模拟数据
     QTimer *timer = new QTimer(&w);
